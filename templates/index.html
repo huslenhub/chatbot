@@ -4,27 +4,153 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Keyword-Based Chatbot</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f9;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 400px;
+            background-color: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #chatbox {
+            flex-grow: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background-color: #f9f9f9;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #chatbox div {
+            margin-bottom: 10px;
+            max-width: 70%;
+        }
+
+        #chatbox div.user-message {
+            align-self: flex-end;
+            background-color: #d1e7dd;
+            color: #0f5132;
+            border-radius: 15px 15px 0 15px;
+            padding: 10px;
+            word-wrap: break-word;
+        }
+
+        #chatbox div.bot-message {
+            align-self: flex-start;
+            background-color: #e2e3e5;
+            color: #41464b;
+            border-radius: 15px 15px 15px 0;
+            padding: 10px;
+            word-wrap: break-word;
+        }
+
+        .input-area {
+            display: flex;
+            border-top: 1px solid #ddd;
+            background-color: #fff;
+        }
+
+        #message {
+            flex-grow: 1;
+            border: none;
+            padding: 15px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        button {
+            border: none;
+            background-color: #4caf50;
+            color: white;
+            padding: 15px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        button:active {
+            background-color: #3e8e41;
+        }
+
+        /* Scrollbar style */
+        #chatbox::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #chatbox::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 3px;
+        }
+    </style>
     <script>
         async function sendMessage() {
-            const message = document.getElementById("message").value;
-            const response = await fetch('/chat', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ message: message })
-            });
-            const data = await response.json();
-            document.getElementById("chatbox").innerHTML += `<div><strong>You:</strong> ${message}</div>`;
-            document.getElementById("chatbox").innerHTML += `<div><strong>Bot:</strong> ${data.message}</div>`;
-            document.getElementById("message").value = '';
+            const message = document.getElementById("message").value.trim();
+            if (message === "") return; // Empty input check
+
+            const chatbox = document.getElementById("chatbox");
+
+            // Append user message
+            chatbox.innerHTML += `<div class="user-message">${message}</div>`;
+            chatbox.scrollTop = chatbox.scrollHeight; // Scroll to bottom
+            document.getElementById("message").value = ''; // Clear input
+
+            try {
+                // Fetch bot response
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message: message })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    chatbox.innerHTML += `<div class="bot-message">${data.message}</div>`;
+                } else {
+                    chatbox.innerHTML += `<div class="bot-message">Sorry, something went wrong.</div>`;
+                }
+            } catch (error) {
+                chatbox.innerHTML += `<div class="bot-message">Error: Unable to connect to the server.</div>`;
+            }
+
+            chatbox.scrollTop = chatbox.scrollHeight; // Scroll to bottom
         }
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        });
     </script>
 </head>
 <body>
-    <h1>Keyword-Based Chatbot</h1>
-    <div id="chatbox" style="border:1px solid #000; padding:10px; height:300px; overflow-y:scroll;"></div>
-    <input type="text" id="message" placeholder="Type your message here..." />
-    <button onclick="sendMessage()">Send</button>
+    <div class="chat-container">
+        <div id="chatbox"></div>
+        <div class="input-area">
+            <input type="text" id="message" placeholder="Type a message..." />
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
 </body>
 </html>
+
