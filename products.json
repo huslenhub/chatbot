@@ -1,0 +1,17 @@
+[
+    {
+      "model": "iPhone 14 Pro Max",
+      "storage": "128GB",
+      "condition": "used",
+      "price": 3120000,
+      "currency": "MNT"
+    },
+    {
+      "model": "Galaxy S23 Ultra",
+      "storage": "256GB",
+      "condition": "new",
+      "price": 2750000,
+      "currency": "MNT"
+    }
+  ]
+  
